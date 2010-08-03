@@ -1,0 +1,712 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<ModulePrefs title="Hypno Clock" width="400" height="400"/>
+<Content type="html">
+<![CDATA[
+
+<script type="text/javascript" src="http://guydmann.no-ip.org/code/processing_toys/processing-0.9.4.js"></script>
+<script type="text/javascript" src="http://guydmann.no-ip.org/code/processing_toys/processing.init.js"></script>
+<div>
+<script type="application/processing">
+//0=polar, 1=analog, 2=binary, 3=abstract, 4 = difficult
+int center_clock;
+float bx_polar;  
+float by_polar;  
+float bx_analog;  
+float by_analog;
+float bx_abstract;  
+float by_abstract;
+float bx_binary;  
+float by_binary;
+float bx_difficult;  
+float by_difficult;
+int loc_polar;
+int loc_analog;
+int loc_binary;
+int loc_abstract;
+int loc_difficult;
+int bs = 40;  
+boolean bover_polar = false;  
+boolean bover_analog = false;  
+boolean bover_binary = false;  
+boolean bover_abstract = false;  
+boolean bover_difficult = false;  
+float bdifx = 0.0;   
+float bdify = 0.0;
+
+void setup() {  
+	size(400, 400);  
+	stroke(255);  
+	smooth();  
+	frameRate(10); 
+	//the locations are 0 for the center and then clockwise from the upper left 1, 2,3,4
+	center_clock = 0;
+	loc_polar = 0;
+	loc_analog=1;
+	loc_binary=2;
+	loc_abstract=3;
+	loc_difficult=4;
+}  
+void draw() {  
+	background(0);  
+	// Angles for sin() and cos() start at 3 o'clock;  
+	// subtract HALF_PI to make them start at the top  
+	int sec = second();
+	int min = minute();
+	int hr = hour();
+	int dayofweek = dayoftheweek();
+	//int dayofweek = 0;
+	int dy = day();
+	int mon = month();
+
+	if (center_clock== 0 ) {
+		clock_size = width*.95;
+		bx_polar=width/2;  
+		by_polar=height/2;  
+	} else {
+		clock_size = 60;
+		if (loc_polar == 1 ) {
+			bx_polar=40;  
+			by_polar=40;  
+		} else if (loc_polar == 2 ) {
+			bx_polar=360;  
+			by_polar=40;  
+		} else if (loc_polar == 3 ) {
+			bx_polar=360;  
+			by_polar=360; 
+		} else {
+			bx_polar=40;  
+			by_polar=360; 
+		}
+	}
+	draw_polar_clock(bx_polar,by_polar,clock_size, clock_size, sec, min, hr, dayofweek, dy, mon);
+	
+	if (center_clock  == 1 ) {
+		clock_size = width*.95;
+		bx_analog=width/2;  
+		by_analog=height/2;  
+	} else {
+		clock_size = 60;
+		if (loc_analog == 1 ) {
+			bx_analog=40;  
+			by_analog=40;  
+		} else if (loc_analog == 2 ) {
+			bx_analog=360;  
+			by_analog=40;  
+		} else if (loc_analog == 3 ) {
+			bx_analog=360;  
+			by_analog=360; 
+		} else {
+			bx_analog=40;  
+			by_analog=360; 
+		}
+	}
+	draw_analog_clock(bx_analog,by_analog,clock_size , clock_size , sec, min, hr);
+	
+	if (center_clock== 2 ) {
+		clock_size = width*.95;
+		bx_binary=width/2;  
+		by_binary=height/2;  
+	} else {
+		clock_size = 60;
+		if (loc_binary == 1 ) {
+			bx_binary=40;  
+			by_binary=40;  
+		} else if (loc_binary == 2 ) {
+			bx_binary=360;  
+			by_binary=40;  
+		} else if (loc_binary == 3 ) {
+			bx_binary=360;  
+			by_binary=360; 
+		} else {
+			bx_binary=40;  
+			by_binary=360; 
+		}
+	}
+	draw_binary_clock(bx_binary,by_binary,clock_size, clock_size, sec, min, hr);
+
+	if (center_clock== 3 ) {
+		clock_size = width*.95;
+		bx_abstract=width/2;  
+		by_abstract=height/2;  
+	} else {
+		clock_size = 60;
+		if (loc_abstract == 1 ) {
+			bx_abstract=40;  
+			by_abstract=40;  
+		} else if (loc_abstract == 2 ) {
+			bx_abstract=360;  
+			by_abstract=40;  
+		} else if (loc_abstract == 3 ) {
+			bx_abstract=360;  
+			by_abstract=360; 
+		} else {
+			bx_abstract=40;  
+			by_abstract=360; 
+		}
+	}
+	draw_abstract_clock(bx_abstract,by_abstract,clock_size, clock_size, sec, min, hr, dayofweek, dy, mon);
+	
+	if (center_clock == 4 ) {
+		clock_size = width*.95;
+		bx_difficult = width/2;  
+		by_difficult=height/2;  
+	} else {
+		clock_size = 60;
+		if (loc_difficult == 1 ) {
+			bx_difficult=40;  
+			by_difficult=40;  
+		} else if (loc_difficult == 2 ) {
+			bx_difficult=360;  
+			by_difficult=40;  
+		} else if (loc_difficult == 3 ) {
+			bx_difficult=360;  
+			by_difficult=360; 
+		} else {
+			bx_difficult=40;  
+			by_difficult=360; 
+		}
+	}
+	draw_difficult_clock(bx_difficult,by_difficult,clock_size, clock_size, sec, min, hr, dayofweek, dy, mon);
+}    
+
+void draw_polar_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
+//	float s = map((sec +(millis()/1000))%60, 0, 60, 0, TWO_PI) - HALF_PI;  
+	float s = map((sec ), 0, 60, 0, TWO_PI) - HALF_PI;  
+	//float m = map(min*60 + sec , 0, 360, 0, TWO_PI) - HALF_PI;  
+	float m = map((min+sec/60)%60, 0, 60, 0, TWO_PI) - HALF_PI;  
+	//float h = map(hr % 12, 0, 4320, 0, TWO_PI) - HALF_PI;  
+	float h = map(((hr % 12) + (min+sec/60)/60)%12, 0, 12, 0, TWO_PI) - HALF_PI;  
+	//need to do something about days in the month here
+	float dow = map(dayofweek, 0, 6, 0, TWO_PI) - HALF_PI;  
+	float d = map(dy, 0, 31, 0, TWO_PI) - HALF_PI;  
+	float mn = map(mon, 0, 12, 0, TWO_PI) - HALF_PI;  
+
+	//DRAW CIRCLE
+	noStroke();  
+	fill(80);  
+	ellipse(x, y, clock_width, clock_height);  
+	noFill();
+	
+	//SET STROKE WEIGHT
+	if (center_clock==0) {
+		strokeWeight(15);  
+	} else {
+		strokeWeight(2);  
+	}
+	
+	//SECONDS
+	int strokeColor = hsvToRgb(map(sec, 0, 60, 0, 360), 100, 100);
+	//THIS WORKS TOO but i like HSV better
+	//int strokeColor = color.toRGB(map(sec, 0, 60, 0, 360), 100, 200);
+	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
+	arc(x, y, clock_width*.9, clock_height*.9,  -HALF_PI, s);
+
+	//MINUTES
+	int strokeColor = hsvToRgb(map(min, 0, 60, 0, 360), 100, 100);
+	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
+	arc(x, y, clock_width*.8, clock_height*.8,  -HALF_PI, m);
+	
+	//HOURS
+	int strokeColor = hsvToRgb(map(hr%12, 0, 12, 0, 360), 100, 100);
+	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
+	arc(x, y, clock_width*.7, clock_height*.7,  -HALF_PI, h);
+	 
+	 //DAY OF THE WEEK
+	int strokeColor = hsvToRgb(map(dayofweek, 0, 6, 0, 360), 100, 100);
+	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
+	arc(x, y, clock_width*.5, clock_height*.5,  -HALF_PI, dow);
+	
+	//DAY OF THE MONTH
+	int strokeColor = hsvToRgb(map(dy, 0, 31, 0, 360), 100, 100);
+	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
+	arc(x, y, clock_width*.4, clock_height*.4,  -HALF_PI, d);
+	
+	//MONTH
+	int strokeColor = hsvToRgb(map(mon, 0, 12, 0, 360), 100, 100);
+	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
+	arc(x, y, clock_width*.3, clock_height*.3,  -HALF_PI, mn);
+
+	//TEXT TIME DISPLAY
+	// only if the clock is centered
+	if (center_clock==0) {
+		//setup string
+		fill(255);
+		String TimeString = "";
+		//setup second text
+		if (min<10) { TimeString += "0" + min + ":"; } else { TimeString += min + ":"; }
+		//setup minute text
+		if (sec<10) { TimeString += "0" + sec; } else { TimeString += sec; }  
+		//setup hour text
+		int hr_tmp;
+		if (hr%12 ==0) { hr_tmp =12; } else { hr_tmp = hr%12; }
+		TimeString = hr_tmp + ":" + TimeString;
+		if  (hr>=12) { TimeString += " PM"; } else { TimeString += " AM"; }
+		
+		//print time text
+		text( TimeString, x-25, y-10);
+		//setup date text
+		String dow_str = dayoftheweek_string();
+		String DateString = month_string() + " " + dy + " " + dow_str.substring(0,3) + ".";
+		//print date text
+		text( DateString, x-25, y+10);
+	}
+}
+
+
+void draw_analog_clock(x,y,clock_width, clock_height, sec, min, hr) {
+//	float s = map(sec, 0, 60, 0, TWO_PI) - HALF_PI;  
+//	float m = map(min, 0, 60, 0, TWO_PI) - HALF_PI;  
+//	float h = map(hr % 12, 0, 12, 0, TWO_PI) - HALF_PI;  
+	float s = map(sec , 0, 60, 0, TWO_PI) - HALF_PI;  
+	//float m = map(min*60 + sec , 0, 360, 0, TWO_PI) - HALF_PI;  
+	float m = map((min+sec/60)%60, 0, 60, 0, TWO_PI) - HALF_PI;  
+	//float h = map(hr % 12, 0, 4320, 0, TWO_PI) - HALF_PI;  
+	float h = map(((hr % 12) + (min+sec/60)/60)%12, 0, 12, 0, TWO_PI) - HALF_PI;  
+	
+	//DRAW CIRCLE
+	noStroke();  
+	fill(80);  
+	ellipse(x, y, clock_width, clock_height);  
+	
+	
+	stroke(255);  
+	//DRAW SECOND LINE
+	strokeWeight(1);  
+	line(x, y, cos(s) * (clock_width*.4) + x, sin(s) * (clock_height*.4) + y);  
+	//DRAW MINUTE LINE
+	strokeWeight(2);  
+	line(x, y, cos(m) * (clock_width*.35) + x, sin(m) * (clock_height*.35) + y);  
+	//DRAW HOUR LINE
+	strokeWeight(4);  
+	line(x, y, cos(h) * (clock_width*.25) + x, sin(h) * (clock_height*.25) + y);  
+}
+
+void draw_difficult_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
+	noStroke();  
+	fill(80);  
+	ellipse(x, y, clock_width, clock_height);  
+	
+//	noFill();
+	
+	
+	
+	
+	//SECONDS
+	strokeWeight(1);  
+	stroke(255,255,255,180);
+	
+	//fill(180,120,180,180);  
+	int color_temp = hsvToRgb(map(sec, 0, 60, 0, 1440)%360, 100, 100);
+	fill(color_temp[0],color_temp[1],color_temp[2],120);  
+	//int color_temp = hsvToRgb(map(sec, 0, 60, 0, 360), 70, 70);
+	//stroke(color_temp[0],color_temp[1],color_temp[2],180);  
+	noStroke();
+	
+	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
+	translate(x,y);  
+	x1 = x;
+	y1 = y;
+	//x2=;
+	//y2= -clock_height;
+	beginShape();
+	for (int i=0; i<=sec; i++) {
+		
+		//x1 = clock_width/2 * cos((i/60)*(TWO_PI*4));
+		//y1 = clock_height/2 * sin((i/60)*(TWO_PI*4));
+		if (loc_difficult==0) {
+			x1 =  exp((i/70)*(TWO_PI))* cos((i/60)*(TWO_PI*8));
+			y1 =  exp((i/70)*(TWO_PI))* sin((i/60)*(TWO_PI*8));
+		} else {
+			x1 =  exp((i/(clock_width*2))*(TWO_PI))* cos((i/60)*(TWO_PI*8));
+			y1 =  exp((i/(clock_height*2))*(TWO_PI))* sin((i/60)*(TWO_PI*8));
+		}
+		curveVertex(x1, y1);
+	}
+	endShape();
+	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
+	
+	noFill();
+	
+	//stroke(255,255,255,220);
+	int color_temp = hsvToRgb(map(min, 0, 60, 0, 360), 100, 100);
+	stroke(color_temp[0],color_temp[1],color_temp[2],220);  
+	strokeWeight(3);  
+	//MINUTES
+	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
+	translate(x-(clock_width/2)*0.87,y-clock_height/2);  
+	//x1 = x;
+	//y1 = y;
+	sampleRate = clock_width/4;
+	beginShape();  
+	curveVertex( 0, clock_height/2 - sin((0)) );  
+	for (n=0; n <= sampleRate; n++){      
+	
+		//int color_temp = hsvToRgb(map(n, 0, 60, 0, 360), 100, 100);
+		//stroke(color_temp[0],color_temp[1],color_temp[2],220);  
+		
+		if (loc_difficult==0) {
+			curveVertex( (clock_width/(sampleRate-1))*(n/1.15), clock_height/2 - sin((((min+sec/60)%60)*n/60)*TWO_PI)*(((min+sec/60)%60))*1.5 );      
+			//curveVertex( (width/(sampleRate-1))*n, height/2 - distXY[n] );
+		} else {
+			curveVertex( (clock_width/(sampleRate-1))*(n/1.15), clock_height/2 - sin((((min+sec/60)%60)*n/60)*TWO_PI)*(((min+sec/60)%60)/5)*1.5 );      
+		}
+	}  
+	endShape();  
+	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
+	/*
+	translate(x,y+clock_height/2);  
+	int x1, y1, cx1, cy1, cx2, cy2, x2, y2;
+	x1 = 0;
+	y1 = 0;
+	cx1 = clock_width/2;
+	cy1 = 0;
+	cx2 = clock_width/2;
+	cy2 = -clock_height;
+	x2=0;
+	y2= -clock_height;
+	
+	for (int i=0; i<=sec; i++) {
+		bezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2);
+		if (i%2) {
+		//change control line 1
+			y1 = y1 - (y1-y2)/((1+sqrt(5))/2);
+			cy1 =cy1 - (y1-y2)/((1+sqrt(5))/2); 
+		} else {
+		//change control line 2
+			y2 = y2 + (y1-y2)/((1+sqrt(5))/2);
+			cy2 = cy2 + (y1-y2)/((1+sqrt(5))/2);
+		}
+		
+	}
+	*/
+	
+
+}
+
+void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
+	noStroke();  
+	fill(80);  
+	ellipse(x, y, clock_width, clock_height);  
+
+	
+	strokeWeight(1);  
+	
+	//SECONDS
+	stroke(50,200,80);
+	// Let's pick an angle 0 to 90 degrees based on the mouse position  
+	float a = (sec / (float) 60) * 90f;  
+	// Convert it to radians  
+	theta = radians(a);  
+	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
+	// Start the tree from the bottom of the screen  
+	translate(x,y+clock_height/2);  
+	// Draw a line 60 pixels  
+	line(0,0,-clock_width*.01123,-clock_height/2*.5);  
+	// Move to the end of that line  
+	translate(-clock_width*.01123,-clock_height/2*.5);  
+	// Start the recursive branching!  
+	branch((sec/60)*clock_width*.21); 
+	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
+	
+	//MINUTES
+	//stroke(255);
+	stroke(100,200,80);
+	// Let's pick an angle 0 to 90 degrees based on the mouse position  
+	float a = (((min+sec/60)%60)/ (float) 60) * 90f;  
+	// Convert it to radians  
+	theta = radians(a);  
+	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
+	// Start the tree from the bottom of the screen  
+	translate(x,y+clock_height/2);  
+	// Draw a line 60 pixels  
+	line(0,0,clock_width*-.081459,-clock_height/2*.7);  
+	// Move to the end of that line  
+	translate(clock_width*-.081459,-clock_height/2*.7);  
+	// Start the recursive branching!  
+	branch((((min+sec/60)%60)/60)*clock_width*.25); 
+	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
+	
+	//HOURS
+	stroke(255);
+	stroke(50,200,150);
+	// Let's pick an angle 0 to 90 degrees based on the mouse position  
+	float a = ((((hr % 12) + (min+sec/60)/60)%12)/ 12) * 90f;  
+	// Convert it to radians  
+	theta = radians(a);  
+	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
+	// Start the tree from the bottom of the screen  
+	translate(x,y+clock_height/2.5);  
+	// Draw a line 60 pixels  
+	line(0,0,clock_width*.021459,-clock_height/2*.8);  
+	// Move to the end of that line  
+	translate(clock_width*.021459,-clock_height/2*.8);  
+	// Start the recursive branching!  
+	//branch((hr%12/12 + min/720 + sec/4320)*clock_width*.25); 
+	branch(((((hr % 12) + (min+sec/60)/60)%12)/12 )*clock_width*.25); 
+	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
+	
+}
+
+void branch(float h) {  
+  // Each branch will be 2/3rds the size of the previous one  
+  h *= 0.66f;  
+    
+    
+  // All recursive functions must have an exit condition!!!!  
+  // Here, ours is when the length of the branch is 2 pixels or less  
+  if (h > 2) {  
+    pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
+    rotate(theta);   // Rotate by theta  
+    line(0,0,0,-h);  // Draw the branch  
+    //line(x,y+clock_height/2*.9,x,y+clock_height/2*.9 -h);  
+    translate(0,-h); // Move to the end of the branch  
+    branch(h);       // Ok, now call myself to draw two new branches!!  
+    popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
+      
+    // Repeat the same thing, only branch off to the "left" this time!  
+    pushMatrix();  
+    rotate(-theta);  
+    line(0,0,0,-h);  
+    //line(x,y+clock_height/2*.9,x,y-h);  
+    //line(x,y+clock_height/2*.9,x,y+clock_height/2*.9 -h);  
+    translate(0,-h);  
+    branch(h);
+    popMatrix();  
+  }  
+}
+
+
+void draw_binary_clock(x,y,clock_width, clock_height, sec, min, hr) {
+	float s = map(sec, 0, 60, 0, TWO_PI) - HALF_PI;  
+	float m = map(min, 0, 60, 0, TWO_PI) - HALF_PI;  
+	float h = map(hr % 12, 0, 12, 0, TWO_PI) - HALF_PI;  
+	int sec_temp = sec;
+	int min_temp = min;
+	int hr_temp = hr;
+	noStroke();  
+	fill(80);  
+	ellipse(x, y, clock_width, clock_height);  
+	
+	//SECONDS
+	if  (sec_temp>=32) {
+		fill(255,0,0);  
+		sec_temp -= 32;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(8/7)) * (clock_width*.35), y+sin(PI*(8/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
+	if  (sec_temp>=16) {
+		fill(255,0,0);  
+		sec_temp -= 16;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(9/7)) * (clock_width*.35), y+sin(PI*(9/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
+	if  (sec_temp>=8) {
+		fill(255,0,0);  
+		sec_temp -= 8;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(10/7)) * (clock_width*.35), y+sin(PI*(10/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
+	if  (sec_temp>=4) {
+		fill(255,0,0);  
+		sec_temp -= 4;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(11/7)) * (clock_width*.35), y+sin(PI*(11/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
+	if  (sec_temp>=2) {
+		fill(255,0,0);  
+		sec_temp -= 2;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(12/7)) * (clock_width*.35), y+sin(PI*(12/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
+	if  (sec_temp>=1) {
+		fill(255,0,0);  
+		sec_temp -= 1;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(13/7)) * (clock_width*.35), y+sin(PI*(13/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
+	
+	//MINUTES
+	noStroke();  
+	if  (min_temp>=32) {
+		fill(0,255,0);   
+		min_temp -= 32;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(6/7)) * (clock_width*.35), y+sin(PI*(6/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
+	if  (min_temp>=16) {
+		fill(0,255,0);  
+		min_temp -= 16;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(5/7)) * (clock_width*.35), y+sin(PI*(5/7)) * (clock_height*.35), clock_width*.1, clock_height*.1); 
+	if  (min_temp>=8) {
+		fill(0,255,0);   
+		min_temp -= 8;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(4/7)) * (clock_width*.35), y+sin(PI*(4/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
+	if  (min_temp>=4) {
+		fill(0,255,0);   
+		min_temp -= 4;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(3/7)) * (clock_width*.35), y+sin(PI*(3/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
+	if  (min_temp>=2) {
+		fill(0,255,0);  
+		min_temp -= 2;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(2/7)) * (clock_width*.35), y+sin(PI*(2/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
+	if  (min_temp>=1) {
+		fill(0,255,0);  
+		min_temp -= 1;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+cos(PI*(1/7)) * (clock_width*.35), y+sin(PI*(1/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
+	
+	//HOURS
+	if  (hr_temp>=16) {
+		fill(0,0,255);   
+		hr_temp -= 16;
+	} else {
+		fill(160);  
+	}
+	ellipse(x- (clock_width*.3), y, clock_width*.1, clock_height*.1);  
+	if  (hr_temp>=8) {
+		fill(0,0,255);   
+		hr_temp -= 8;
+	} else {
+		fill(160);  
+	}
+	ellipse(x- (clock_width*.15), y, clock_width*.1, clock_height*.1);  
+	if  (hr_temp>=4) {
+		fill(0,0,255);   
+		hr_temp -= 4;
+	} else {
+		fill(160);  
+	}
+	ellipse(x, y, clock_width*.1, clock_height*.1);  
+	if  (hr_temp>=2) {
+		fill(0,0,255);  
+		hr_temp -= 2;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+ (clock_width*.15), y, clock_width*.1, clock_height*.1);  
+	if  (hr_temp>=1) {
+		fill(0,0,255);  
+		hr_temp -= 1;
+	} else {
+		fill(160);  
+	}
+	ellipse(x+(clock_width*.3), y, clock_width*.1, clock_height*.1);  
+}
+
+void mousePressed() {  
+	if (mouseX > bx_analog-bs && mouseX < bx_analog+bs &&   mouseY > by_analog-bs && mouseY < by_analog+bs) {  
+		bover_analog = true; 
+	}
+	if (mouseX > bx_abstract-bs && mouseX < bx_abstract+bs &&   mouseY > by_abstract-bs && mouseY < by_abstract+bs) {  
+		bover_abstract = true; 
+	}
+	if (mouseX > bx_polar-bs && mouseX < bx_polar+bs &&   mouseY > by_polar-bs && mouseY < by_polar+bs) {  
+		bover_polar = true; 
+	}
+	if (mouseX > bx_binary-bs && mouseX < bx_binary+bs &&   mouseY > by_binary-bs && mouseY < by_binary+bs) {  
+		bover_binary = true; 
+	}
+	if (mouseX > bx_difficult-bs && mouseX < bx_difficult+bs &&   mouseY > by_difficult-bs && mouseY < by_difficult+bs) {  
+		bover_difficult = true; 
+	}
+	if(bover_polar) { 
+		if (center_clock ==1) {
+			loc_analog= loc_polar;
+		} else if (center_clock==2) {
+			loc_binary = loc_polar;
+		} else if (center_clock==3) {
+			loc_abstract= loc_polar;
+		} else if (center_clock==4) {
+			loc_difficult = loc_polar;
+		}
+		center_clock = 0;
+		loc_polar = 0;
+		bover_polar=false;
+	}
+	if(bover_analog) { 
+		if (center_clock ==0) {
+			loc_polar = loc_analog;
+		} else if (center_clock==2) {
+			loc_binary = loc_analog;
+		} else if (center_clock==3) {
+			loc_abstract= loc_analog;
+		} else if (center_clock==4) {
+			loc_difficult= loc_analog;
+		}
+		center_clock = 1;
+		loc_analog = 0;
+		bover_analog=false;
+	}
+	if(bover_binary) { 
+		if (center_clock ==0) {
+			loc_polar = loc_binary;
+		} else if (center_clock==1) {
+			loc_analog = loc_binary;
+		} else if (center_clock==3) {
+			loc_abstract= loc_binary;
+		} else if (center_clock==4) {
+			loc_difficult= loc_binary;
+		}
+		center_clock = 2;
+		loc_binary = 0;
+		bover_binary=false;
+	}	
+	if(bover_abstract) { 
+		if (center_clock ==0) {
+			loc_polar = loc_abstract;
+		} else if (center_clock==1) {
+			loc_analog = loc_abstract;
+		} else if (center_clock==2) {
+			loc_binary = loc_abstract;
+		} else if (center_clock==4) {
+			loc_difficult = loc_abstract;
+		}
+		center_clock = 3;
+		loc_abstract = 0;
+		bover_abstract=false;
+	}
+	if(bover_difficult) { 
+		if (center_clock ==0) {
+			loc_polar = loc_difficult;
+		} else if (center_clock==1) {
+			loc_analog = loc_difficult;
+		} else if (center_clock==2) {
+			loc_binary= loc_difficult;
+		} else if (center_clock==3) {
+			loc_abstract= loc_difficult;
+		}
+		center_clock = 4;
+		loc_difficult = 0;
+		bover_difficult=false;
+	}
+}
+
+</script>
+<canvas width="400" height="400"></canvas>
+</div>
+
+]]>
+</Content>
+</Module>
