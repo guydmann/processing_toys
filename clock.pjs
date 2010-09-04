@@ -458,8 +458,9 @@ void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek,
 	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
 
 
+/*
 
-
+	
 	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
 
 	translate(x,y+clock_height/2);  
@@ -489,7 +490,7 @@ void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek,
 	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
 
 
-	
+*/	
 
 	
 	strokeWeight(1);  
