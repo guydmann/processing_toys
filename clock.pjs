@@ -437,7 +437,6 @@ void draw_abstract_clock(x,y,clock_width, clock_height, mil, sec, min, hr, dayof
 	//stroke(255,255,255,220);
 	int color_temp = hsvToRgb(map(m_temp, 0, 60, 0, 360), 100, 100);
 	stroke(color_temp[0],color_temp[1],color_temp[2],220);  
-	strokeWeight(3);  
 	//SET STROKE WEIGHT
 	if (center_clock==3) {
 		strokeWeight(3);  
@@ -469,12 +468,22 @@ void draw_abstract_clock(x,y,clock_width, clock_height, mil, sec, min, hr, dayof
 	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
 
 
-/*
 
+/*
+	//HOUR STUFF
+	int color_temp = hsvToRgb(map(m_temp, 0, 60, 90, 270), 100, 100);
+	stroke(color_temp[0],color_temp[1],color_temp[2],220);  
+	//SET STROKE WEIGHT
+	if (center_clock==3) {
+		strokeWeight(3);  
+	} else {
+		strokeWeight(1);  
+	}
 	
 	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
 
 	translate(x,y+clock_height/2);  
+	rotate(PI/2);
 	int x1, y1, cx1, cy1, cx2, cy2, x2, y2;
 	x1 = 0;
 	y1 = 0;
@@ -485,23 +494,31 @@ void draw_abstract_clock(x,y,clock_width, clock_height, mil, sec, min, hr, dayof
 	x2=0;
 	y2= -clock_height;
 	
-	for (int i=0; i<=sec; i++) {
-		bezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2);
+	for (int i=0; i<=h_temp*10; i++) {
+		bezier(x1, y1, cx1, cy1, cx2, cy2, x2, y2 );
 		if (i%2) {
 		//change control line 1
-			y1 = y1 - (y1-y2)/((1+sqrt(5))/2);
-			cy1 =cy1 - (y1-y2)/((1+sqrt(5))/2); 
+			y1 = y1 - (y1-y2);
+			cy1 =cy1 - (y1-y2); 
+//			y1 = y1 - (y1-y2)/((1+sqrt(5))/2);
+//			cy1 =cy1 - (y1-y2)/((1+sqrt(5))/2); 
+//			x1 = x1 - (x1+x2)/((1+sqrt(5))/2);
+//			cx1 =cx1 - (x1+x2)/((1+sqrt(5))/2); 
 		} else {
 		//change control line 2
-			y2 = y2 + (y1-y2)/((1+sqrt(5))/2);
-			cy2 = cy2 + (y1-y2)/((1+sqrt(5))/2);
+			y2 = y2 + (y1-y2);
+			cy2 = cy2 + (y1-y2);
+//			y2 = y2 + (y1-y2)/((1+sqrt(5))/2);
+//			cy2 = cy2 + (y1-y2)/((1+sqrt(5))/2);
+//			x2 = x2 + (x1-x2)/((1+sqrt(5))/2);
+//			cx2 = cx2 + (x1-x2)/((1+sqrt(5))/2);
 		}
 		
 	}
 	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
 
 
-*/	
+*/
 
 	
 	strokeWeight(1);  
