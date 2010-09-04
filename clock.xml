@@ -38,7 +38,7 @@ void setup() {
 	size(400, 400);  
 	stroke(255);  
 	smooth();  
-	frameRate(10); 
+	frameRate(30); 
 	//the locations are 0 for the center and then clockwise from the upper left 1, 2,3,4
 	center_clock = 0;
 	loc_polar = 0;
@@ -167,16 +167,17 @@ void draw() {
 			by_difficult=360; 
 		}
 	}
-	draw_difficult_clock(bx_difficult,by_difficult,clock_size, clock_size, sec, min, hr, dayofweek, dy, mon);
+	draw_fillcircles_clock(bx_difficult,by_difficult,clock_size, clock_size, sec, min, hr, dayofweek, dy, mon);
 }    
 
 void draw_polar_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
-//	float s = map((sec +(millis()/1000))%60, 0, 60, 0, TWO_PI) - HALF_PI;  
-	float s = map((sec ), 0, 60, 0, TWO_PI) - HALF_PI;  
-	//float m = map(min*60 + sec , 0, 360, 0, TWO_PI) - HALF_PI;  
-	float m = map((min+sec/60)%60, 0, 60, 0, TWO_PI) - HALF_PI;  
-	//float h = map(hr % 12, 0, 4320, 0, TWO_PI) - HALF_PI;  
-	float h = map(((hr % 12) + (min+sec/60)/60)%12, 0, 12, 0, TWO_PI) - HALF_PI;  
+//millis();
+	float s_temp =sec+(milliseconds()/1000); 
+	float s = map(s_temp%60, 0, 60, 0, TWO_PI) - HALF_PI;  
+	float m_temp = min+(s_temp/60);
+	float m = map(m_temp%60, 0, 60, 0, TWO_PI) - HALF_PI;  
+	float h_temp = (hr % 12) + m_temp/60;
+	float h = map(h_temp %12, 0, 12, 0, TWO_PI) - HALF_PI;  
 	//need to do something about days in the month here
 	float dow = map(dayofweek, 0, 6, 0, TWO_PI) - HALF_PI;  
 	float d = map(dy, 0, 31, 0, TWO_PI) - HALF_PI;  
@@ -196,19 +197,19 @@ void draw_polar_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy
 	}
 	
 	//SECONDS
-	int strokeColor = hsvToRgb(map(sec, 0, 60, 0, 360), 100, 100);
+	int strokeColor = hsvToRgb(map(s_temp, 0, 60, 0, 360), 100, 100);
 	//THIS WORKS TOO but i like HSV better
 	//int strokeColor = color.toRGB(map(sec, 0, 60, 0, 360), 100, 200);
 	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
 	arc(x, y, clock_width*.9, clock_height*.9,  -HALF_PI, s);
 
 	//MINUTES
-	int strokeColor = hsvToRgb(map(min, 0, 60, 0, 360), 100, 100);
+	int strokeColor = hsvToRgb(map(m_temp, 0, 60, 0, 360), 100, 100);
 	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
 	arc(x, y, clock_width*.8, clock_height*.8,  -HALF_PI, m);
 	
 	//HOURS
-	int strokeColor = hsvToRgb(map(hr%12, 0, 12, 0, 360), 100, 100);
+	int strokeColor = hsvToRgb(map(h_temp%12, 0, 12, 0, 360), 100, 100);
 	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
 	arc(x, y, clock_width*.7, clock_height*.7,  -HALF_PI, h);
 	 
@@ -242,6 +243,9 @@ void draw_polar_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy
 		if (hr%12 ==0) { hr_tmp =12; } else { hr_tmp = hr%12; }
 		TimeString = hr_tmp + ":" + TimeString;
 		if  (hr>=12) { TimeString += " PM"; } else { TimeString += " AM"; }
+
+		//debugging code
+		//TimeString += " " + milliseconds() + " ";
 		
 		//print time text
 		text( TimeString, x-25, y-10);
@@ -250,6 +254,75 @@ void draw_polar_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy
 		String DateString = month_string() + " " + dy + " " + dow_str.substring(0,3) + ".";
 		//print date text
 		text( DateString, x-25, y+10);
+	}
+}
+
+
+void draw_fillcircles_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
+	float s_temp =sec+(milliseconds()/1000); 
+	float s = map(s_temp%60, 0, 60, 0, 1);  
+	float m_temp = min+(s_temp/60);
+	float m = map(m_temp%60, 0, 60, 0, 1);  
+	float h_temp = (hr % 12) + m_temp/60;
+	float h = map(h_temp %12, 0, 12, 0, 1);  
+
+	//DRAW CIRCLE
+	noStroke();  
+	fill(80);  
+	ellipse(x, y, clock_width, clock_height);  
+	
+	//SET STROKE WEIGHT
+	if (center_clock==4) {
+		strokeWeight(3);  
+	} else {
+		strokeWeight(1);  
+	}
+	
+	stroke(0);  
+
+	//HOURS
+	int strokeColor = hsvToRgb(map(h_temp%12, 0, 12, 0, 270), 100, 100);
+	fill(strokeColor[0],strokeColor[1],strokeColor[2],100);  
+	float h_width = h*(clock_width*.3)+(clock_width*.6);
+	ellipse(x,y,h_width, h_width);
+
+	//MINUTES
+	int strokeColor = hsvToRgb(map(m_temp, 0, 60, 0, 270), 100, 100);
+	fill(strokeColor[0],strokeColor[1],strokeColor[2],80);  
+	float m_width = m*(h_width-(clock_width*.4))*.9 +(clock_width*.4);
+	ellipse(x,y,m_width, m_width);
+
+	//SECONDS
+	int strokeColor = hsvToRgb(map(s_temp, 0, 60, 0, 270), 100, 100);
+	fill(strokeColor[0],strokeColor[1],strokeColor[2],80);  
+	float s_width = s*(m_width-(clock_width*.2))*.9 +(clock_width*.2);
+	ellipse(x,y,s_width, s_width);
+
+	//draw center circle
+	fill(0);  
+	ellipse(x, y, clock_width*.2, clock_height*.2);  
+	
+	//TEXT TIME DISPLAY
+	// only if the clock is centered
+	if (center_clock==4) {
+		//setup string
+		fill(255);
+		String TimeString = "";
+		//setup second text
+		if (min<10) { TimeString += "0" + min + ":"; } else { TimeString += min + ":"; }
+		//setup minute text
+		if (sec<10) { TimeString += "0" + sec; } else { TimeString += sec; }  
+		//setup hour text
+		int hr_tmp;
+		if (hr%12 ==0) { hr_tmp =12; } else { hr_tmp = hr%12; }
+		TimeString = hr_tmp + ":" + TimeString;
+//		if  (hr>=12) { TimeString += " PM"; } else { TimeString += " AM"; }
+
+		//debugging code
+		//TimeString += " " + milliseconds() + " ";
+
+		//print time text
+		text( TimeString, x-19, y+5);
 	}
 }
 
@@ -282,16 +355,11 @@ void draw_analog_clock(x,y,clock_width, clock_height, sec, min, hr) {
 	line(x, y, cos(h) * (clock_width*.25) + x, sin(h) * (clock_height*.25) + y);  
 }
 
-void draw_difficult_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
+void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
 	noStroke();  
 	fill(80);  
 	ellipse(x, y, clock_width, clock_height);  
-	
-//	noFill();
-	
-	
-	
-	
+
 	//SECONDS
 	strokeWeight(1);  
 	stroke(255,255,255,180);
@@ -299,9 +367,8 @@ void draw_difficult_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek
 	//fill(180,120,180,180);  
 	int color_temp = hsvToRgb(map(sec, 0, 60, 0, 1440)%360, 100, 100);
 	fill(color_temp[0],color_temp[1],color_temp[2],120);  
-	//int color_temp = hsvToRgb(map(sec, 0, 60, 0, 360), 70, 70);
-	//stroke(color_temp[0],color_temp[1],color_temp[2],180);  
-	noStroke();
+	stroke(color_temp[0],color_temp[1],color_temp[2],180);  
+	//noStroke();
 	
 	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
 	translate(x,y);  
@@ -314,7 +381,7 @@ void draw_difficult_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek
 		
 		//x1 = clock_width/2 * cos((i/60)*(TWO_PI*4));
 		//y1 = clock_height/2 * sin((i/60)*(TWO_PI*4));
-		if (loc_difficult==0) {
+		if (loc_abstract==0) {
 			x1 =  exp((i/70)*(TWO_PI))* cos((i/60)*(TWO_PI*8));
 			y1 =  exp((i/70)*(TWO_PI))* sin((i/60)*(TWO_PI*8));
 		} else {
@@ -345,7 +412,7 @@ void draw_difficult_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek
 		//int color_temp = hsvToRgb(map(n, 0, 60, 0, 360), 100, 100);
 		//stroke(color_temp[0],color_temp[1],color_temp[2],220);  
 		
-		if (loc_difficult==0) {
+		if (loc_abstract==0) {
 			curveVertex( (clock_width/(sampleRate-1))*(n/1.15), clock_height/2 - sin((((min+sec/60)%60)*n/60)*TWO_PI)*(((min+sec/60)%60))*1.5 );      
 			//curveVertex( (width/(sampleRate-1))*n, height/2 - distXY[n] );
 		} else {
@@ -354,6 +421,9 @@ void draw_difficult_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek
 	}  
 	endShape();  
 	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
+
+
+
 	/*
 	translate(x,y+clock_height/2);  
 	int x1, y1, cx1, cy1, cx2, cy2, x2, y2;
@@ -381,13 +451,6 @@ void draw_difficult_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek
 	}
 	*/
 	
-
-}
-
-void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
-	noStroke();  
-	fill(80);  
-	ellipse(x, y, clock_width, clock_height);  
 
 	
 	strokeWeight(1);  

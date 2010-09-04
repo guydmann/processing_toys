@@ -346,50 +346,95 @@ void draw_analog_clock(x,y,clock_width, clock_height, sec, min, hr) {
 }
 
 void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
+	float s_temp =sec+(milliseconds()/1000); 
+	float s = map(s_temp%60, 0, 60, 0, 1);  
+	float m_temp = min+(s_temp/60);
+	float m = map(m_temp%60, 0, 60, 0, 1);  
+	float h_temp = (hr % 12) + m_temp/60;
+	float h = map(h_temp %12, 0, 12, 0, 1);  
+
+	//BACKGROUND
 	noStroke();  
 	fill(80);  
 	ellipse(x, y, clock_width, clock_height);  
 
-	//SECONDS
+	//SECONDS SPIRAL
 	strokeWeight(1);  
 	stroke(255,255,255,180);
 	
 	//fill(180,120,180,180);  
-	int color_temp = hsvToRgb(map(sec, 0, 60, 0, 1440)%360, 100, 100);
+	int color_temp = hsvToRgb(map(s_temp, 0, 60, 0, 1440)%360, 100, 100);
 	fill(color_temp[0],color_temp[1],color_temp[2],120);  
 	stroke(color_temp[0],color_temp[1],color_temp[2],180);  
 	//noStroke();
 	
 	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
 	translate(x,y);  
-	x1 = x;
-	y1 = y;
-	//x2=;
-	//y2= -clock_height;
-	beginShape();
-	for (int i=0; i<=sec; i++) {
+	if (min%2) {
+		//expand
+		x1 = x;
+		y1 = y;
+		beginShape();
+		for (int i=0; i<=s_temp; i++) {
 		
-		//x1 = clock_width/2 * cos((i/60)*(TWO_PI*4));
-		//y1 = clock_height/2 * sin((i/60)*(TWO_PI*4));
+			//x1 = clock_width/2 * cos((i/60)*(TWO_PI*4));
+			//y1 = clock_height/2 * sin((i/60)*(TWO_PI*4));
+			if (loc_abstract==0) {
+				x1 =  exp((i/70)*(TWO_PI))* cos((i/60)*(TWO_PI*8));
+				y1 =  exp((i/70)*(TWO_PI))* sin((i/60)*(TWO_PI*8));
+			} else {
+				x1 =  exp((i/(clock_width*2))*(TWO_PI))* cos((i/(clock_width*2))*(TWO_PI*8));
+				y1 =  exp((i/(clock_height*2))*(TWO_PI))* sin((i/(clock_width*2))*(TWO_PI*8));
+			}
+			curveVertex(x1, y1);
+		}
+		endShape();
+	} else {
+		//contract
+		int i = 60 - s_temp;
 		if (loc_abstract==0) {
 			x1 =  exp((i/70)*(TWO_PI))* cos((i/60)*(TWO_PI*8));
 			y1 =  exp((i/70)*(TWO_PI))* sin((i/60)*(TWO_PI*8));
 		} else {
-			x1 =  exp((i/(clock_width*2))*(TWO_PI))* cos((i/60)*(TWO_PI*8));
-			y1 =  exp((i/(clock_height*2))*(TWO_PI))* sin((i/60)*(TWO_PI*8));
+			x1 =  exp((i/(clock_width*2))*(TWO_PI))* cos((i/(clock_width*2))*(TWO_PI*8));
+			y1 =  exp((i/(clock_height*2))*(TWO_PI))* sin((i/(clock_width*2))*(TWO_PI*8));
 		}
-		curveVertex(x1, y1);
+
+		//x2=;
+		//y2= -clock_height;
+		beginShape();
+		for (i=Math.floor(60-s_temp); i>=0; i--) {
+		
+			//x1 = clock_width/2 * cos((i/60)*(TWO_PI*4));
+			//y1 = clock_height/2 * sin((i/60)*(TWO_PI*4));
+			if (loc_abstract==0) {
+				x1 =  exp((i/70)*(TWO_PI))* cos((i/60)*(TWO_PI*8));
+				y1 =  exp((i/70)*(TWO_PI))* sin((i/60)*(TWO_PI*8));
+			} else {
+				x1 =  exp((i/(clock_width*2))*(TWO_PI))* cos((i/60)*(TWO_PI*8));
+				y1 =  exp((i/(clock_height*2))*(TWO_PI))* sin((i/60)*(TWO_PI*8));
+			}
+			curveVertex(x1, y1);
+		}
+		endShape();
+
 	}
-	endShape();
 	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
 	
 	noFill();
 	
 	//stroke(255,255,255,220);
-	int color_temp = hsvToRgb(map(min, 0, 60, 0, 360), 100, 100);
+	int color_temp = hsvToRgb(map(m_temp, 0, 60, 0, 360), 100, 100);
 	stroke(color_temp[0],color_temp[1],color_temp[2],220);  
 	strokeWeight(3);  
-	//MINUTES
+	//SET STROKE WEIGHT
+	if (center_clock==3) {
+		strokeWeight(3);  
+	} else {
+		strokeWeight(1);  
+	}
+
+	//MINUTES SINE WAVE
 	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
 	translate(x-(clock_width/2)*0.87,y-clock_height/2);  
 	//x1 = x;
@@ -414,7 +459,9 @@ void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek,
 
 
 
-	/*
+
+	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
+
 	translate(x,y+clock_height/2);  
 	int x1, y1, cx1, cy1, cx2, cy2, x2, y2;
 	x1 = 0;
@@ -439,7 +486,9 @@ void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek,
 		}
 		
 	}
-	*/
+	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
+
+
 	
 
 	
@@ -448,7 +497,7 @@ void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek,
 	//SECONDS
 	stroke(50,200,80);
 	// Let's pick an angle 0 to 90 degrees based on the mouse position  
-	float a = (sec / (float) 60) * 90f;  
+	float a = s * 90f;  
 	// Convert it to radians  
 	theta = radians(a);  
 	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
@@ -466,7 +515,7 @@ void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek,
 	//stroke(255);
 	stroke(100,200,80);
 	// Let's pick an angle 0 to 90 degrees based on the mouse position  
-	float a = (((min+sec/60)%60)/ (float) 60) * 90f;  
+	float a = m * 90f;  
 	// Convert it to radians  
 	theta = radians(a);  
 	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
@@ -484,7 +533,7 @@ void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek,
 	stroke(255);
 	stroke(50,200,150);
 	// Let's pick an angle 0 to 90 degrees based on the mouse position  
-	float a = ((((hr % 12) + (min+sec/60)/60)%12)/ 12) * 90f;  
+	float a = h * 90f;  
 	// Convert it to radians  
 	theta = radians(a);  
 	pushMatrix();    // Save the current state of transformation (i.e. where are we now)  
@@ -542,130 +591,32 @@ void draw_binary_clock(x,y,clock_width, clock_height, sec, min, hr) {
 	ellipse(x, y, clock_width, clock_height);  
 	
 	//SECONDS
-	if  (sec_temp>=32) {
-		fill(255,0,0);  
-		sec_temp -= 32;
-	} else {
-		fill(160);  
+	int inc = 0;
+	for (int i=32; i>=1; i=i/2) {
+		if (sec_temp>=i) { fill(255,0,0); sec_temp -= i; } else { fill(160); }
+		float x_loc = x+cos(PI*((8 + inc)/7)) * (clock_width*.35);
+		float y_loc =  y+sin(PI*((8+inc)/7)) * (clock_height*.35)
+		ellipse(x_loc, y_loc, clock_width*.1, clock_height*.1);  
+		inc++;
 	}
-	ellipse(x+cos(PI*(8/7)) * (clock_width*.35), y+sin(PI*(8/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
-	if  (sec_temp>=16) {
-		fill(255,0,0);  
-		sec_temp -= 16;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+cos(PI*(9/7)) * (clock_width*.35), y+sin(PI*(9/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
-	if  (sec_temp>=8) {
-		fill(255,0,0);  
-		sec_temp -= 8;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+cos(PI*(10/7)) * (clock_width*.35), y+sin(PI*(10/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
-	if  (sec_temp>=4) {
-		fill(255,0,0);  
-		sec_temp -= 4;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+cos(PI*(11/7)) * (clock_width*.35), y+sin(PI*(11/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
-	if  (sec_temp>=2) {
-		fill(255,0,0);  
-		sec_temp -= 2;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+cos(PI*(12/7)) * (clock_width*.35), y+sin(PI*(12/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
-	if  (sec_temp>=1) {
-		fill(255,0,0);  
-		sec_temp -= 1;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+cos(PI*(13/7)) * (clock_width*.35), y+sin(PI*(13/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
-	
+
 	//MINUTES
-	noStroke();  
-	if  (min_temp>=32) {
-		fill(0,255,0);   
-		min_temp -= 32;
-	} else {
-		fill(160);  
+	inc = 0;
+	for (int i=32; i>=1; i=i/2) {
+		if (min_temp>=i) { fill(0,255,0); min_temp -= i; } else { fill(160); }
+		float x_loc = x-cos(PI*((6-inc)/7)) * (clock_width*.35);
+		float y_loc =  y+sin(PI*((6-inc)/7)) * (clock_height*.35)
+		ellipse(x_loc, y_loc, clock_width*.1, clock_height*.1);  
+		inc++;
 	}
-	ellipse(x+cos(PI*(6/7)) * (clock_width*.35), y+sin(PI*(6/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
-	if  (min_temp>=16) {
-		fill(0,255,0);  
-		min_temp -= 16;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+cos(PI*(5/7)) * (clock_width*.35), y+sin(PI*(5/7)) * (clock_height*.35), clock_width*.1, clock_height*.1); 
-	if  (min_temp>=8) {
-		fill(0,255,0);   
-		min_temp -= 8;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+cos(PI*(4/7)) * (clock_width*.35), y+sin(PI*(4/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
-	if  (min_temp>=4) {
-		fill(0,255,0);   
-		min_temp -= 4;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+cos(PI*(3/7)) * (clock_width*.35), y+sin(PI*(3/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
-	if  (min_temp>=2) {
-		fill(0,255,0);  
-		min_temp -= 2;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+cos(PI*(2/7)) * (clock_width*.35), y+sin(PI*(2/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
-	if  (min_temp>=1) {
-		fill(0,255,0);  
-		min_temp -= 1;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+cos(PI*(1/7)) * (clock_width*.35), y+sin(PI*(1/7)) * (clock_height*.35), clock_width*.1, clock_height*.1);  
-	
+
 	//HOURS
-	if  (hr_temp>=16) {
-		fill(0,0,255);   
-		hr_temp -= 16;
-	} else {
-		fill(160);  
+	inc = 0;
+	for (int i=16; i>=1; i=i/2) {
+		if (hr_temp>=i) { fill(0,0,255); hr_temp -= i; } else { fill(160); }
+		ellipse(x- (clock_width*.3) + (clock_width*(inc*.15)), y, clock_width*.1, clock_height*.1);  
+		inc++;
 	}
-	ellipse(x- (clock_width*.3), y, clock_width*.1, clock_height*.1);  
-	if  (hr_temp>=8) {
-		fill(0,0,255);   
-		hr_temp -= 8;
-	} else {
-		fill(160);  
-	}
-	ellipse(x- (clock_width*.15), y, clock_width*.1, clock_height*.1);  
-	if  (hr_temp>=4) {
-		fill(0,0,255);   
-		hr_temp -= 4;
-	} else {
-		fill(160);  
-	}
-	ellipse(x, y, clock_width*.1, clock_height*.1);  
-	if  (hr_temp>=2) {
-		fill(0,0,255);  
-		hr_temp -= 2;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+ (clock_width*.15), y, clock_width*.1, clock_height*.1);  
-	if  (hr_temp>=1) {
-		fill(0,0,255);  
-		hr_temp -= 1;
-	} else {
-		fill(160);  
-	}
-	ellipse(x+(clock_width*.3), y, clock_width*.1, clock_height*.1);  
 }
 
 void mousePressed() {  
