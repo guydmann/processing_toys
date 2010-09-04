@@ -13,9 +13,11 @@
 
 <div style="padding: 3em">
 <h2>Clock App</h2>
-this application runs much more smoothly in chrome, however firefox seems to give a crisper image so it's a toss up.
-		To enlarge a small clock merely click on it<br>
-
+runs smoothly in Chrome<br>
+Firefox image is crisper<br>
+suggest using Chrome<br>
+<br>
+To enlarge a small clock merely click on it<br>
 <br><br><br>
 <script type="application/processing">
 <?php include("./clock.pjs"); ?>
