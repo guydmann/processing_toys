@@ -41,6 +41,7 @@ void draw() {
 	background(0);  
 	// Angles for sin() and cos() start at 3 o'clock;  
 	// subtract HALF_PI to make them start at the top  
+	int mil = milliseconds();
 	int sec = second();
 	int min = minute();
 	int hr = hour();
@@ -69,7 +70,7 @@ void draw() {
 			by_polar=360; 
 		}
 	}
-	draw_polar_clock(bx_polar,by_polar,clock_size, clock_size, sec, min, hr, dayofweek, dy, mon);
+	draw_polar_clock(bx_polar,by_polar,clock_size, clock_size, mil, sec, min, hr, dayofweek, dy, mon);
 	
 	if (center_clock  == 1 ) {
 		clock_size = width*.95;
@@ -135,7 +136,7 @@ void draw() {
 			by_abstract=360; 
 		}
 	}
-	draw_abstract_clock(bx_abstract,by_abstract,clock_size, clock_size, sec, min, hr, dayofweek, dy, mon);
+	draw_abstract_clock(bx_abstract,by_abstract,clock_size, clock_size, mil, sec, min, hr, dayofweek, dy, mon);
 	
 	if (center_clock == 4 ) {
 		clock_size = width*.95;
@@ -157,12 +158,12 @@ void draw() {
 			by_difficult=360; 
 		}
 	}
-	draw_fillcircles_clock(bx_difficult,by_difficult,clock_size, clock_size, sec, min, hr, dayofweek, dy, mon);
+	draw_fillcircles_clock(bx_difficult,by_difficult,clock_size, clock_size, mil, sec, min, hr);
 }    
 
-void draw_polar_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
+void draw_polar_clock(x,y,clock_width, clock_height, mil, sec, min, hr, dayofweek, dy, mon) {
 //millis();
-	float s_temp =sec+(milliseconds()/1000); 
+	float s_temp =sec+(mil/1000); 
 	float s = map(s_temp%60, 0, 60, 0, TWO_PI) - HALF_PI;  
 	float m_temp = min+(s_temp/60);
 	float m = map(m_temp%60, 0, 60, 0, TWO_PI) - HALF_PI;  
@@ -248,8 +249,8 @@ void draw_polar_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy
 }
 
 
-void draw_fillcircles_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
-	float s_temp =sec+(milliseconds()/1000); 
+void draw_fillcircles_clock(x,y,clock_width, clock_height, mil, sec, min, hr) {
+	float s_temp =sec+(mil/1000); 
 	float s = map(s_temp%60, 0, 60, 0, 1);  
 	float m_temp = min+(s_temp/60);
 	float m = map(m_temp%60, 0, 60, 0, 1);  
@@ -282,10 +283,20 @@ void draw_fillcircles_clock(x,y,clock_width, clock_height, sec, min, hr, dayofwe
 	float m_width = m*(h_width-(clock_width*.4))*.9 +(clock_width*.4);
 	ellipse(x,y,m_width, m_width);
 
+	float k_temp;
+	float k;  
+
 	//SECONDS
-	int strokeColor = hsvToRgb(map(s_temp, 0, 60, 0, 270), 100, 100);
+	if (min%2) {
+		k_temp = s_temp;
+		k = s;
+	} else {
+		k_temp = 60 - s_temp;
+		k = map(k_temp%60, 0, 60, 0, 1);  
+	}
+	int strokeColor = hsvToRgb(map(k_temp, 0, 60, 0, 270), 100, 100);
 	fill(strokeColor[0],strokeColor[1],strokeColor[2],80);  
-	float s_width = s*(m_width-(clock_width*.2))*.9 +(clock_width*.2);
+	float s_width = k*(m_width-(clock_width*.2))*.9 +(clock_width*.2);
 	ellipse(x,y,s_width, s_width);
 
 	//draw center circle
@@ -345,8 +356,8 @@ void draw_analog_clock(x,y,clock_width, clock_height, sec, min, hr) {
 	line(x, y, cos(h) * (clock_width*.25) + x, sin(h) * (clock_height*.25) + y);  
 }
 
-void draw_abstract_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
-	float s_temp =sec+(milliseconds()/1000); 
+void draw_abstract_clock(x,y,clock_width, clock_height, mil, sec, min, hr, dayofweek, dy, mon) {
+	float s_temp =sec+(mil/1000); 
 	float s = map(s_temp%60, 0, 60, 0, 1);  
 	float m_temp = min+(s_temp/60);
 	float m = map(m_temp%60, 0, 60, 0, 1);  

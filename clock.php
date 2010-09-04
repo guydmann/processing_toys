@@ -17,8 +17,11 @@ runs smoothly in Chrome<br>
 Firefox image is crisper<br>
 suggest using Chrome<br>
 <br>
+This clock has been submitted to the <a href="http://www.tokyoflash.com/blog/?p=1725&lang=en">Tokyo Flash Design Contest</a>
+<br>
+<br>
 To enlarge a small clock merely click on it<br>
-<br><br><br>
+<br>
 <script type="application/processing">
 <?php include("./clock.pjs"); ?>
 </script>
