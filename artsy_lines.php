@@ -32,7 +32,7 @@ void setup() {
 void draw() 
 {
    
-   for(int i = 0; i < width; i=i+2) {  
+   for(int i = 0; i < width; i=i+5) {  
      float r = random(170-(nX%170),190+(nY%170));  
      float x = random(0, width);  
      int strokeColor = hsvToRgb(r, 100, 100);

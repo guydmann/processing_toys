@@ -3329,6 +3329,10 @@ p.hsvToRgb = function hsvToRgb(h, s, v) {
     p.second = function second() {
       return new Date().getSeconds();
     };
+//ADDED by GM
+    p.milliseconds = function milliseconds() {
+      return new Date().getMilliseconds();
+    };
     p.millis = function millis() {
       return new Date().getTime() - start;
     };

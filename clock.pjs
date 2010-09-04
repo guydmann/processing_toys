@@ -28,7 +28,7 @@ void setup() {
 	size(400, 400);  
 	stroke(255);  
 	smooth();  
-	frameRate(10); 
+	frameRate(30); 
 	//the locations are 0 for the center and then clockwise from the upper left 1, 2,3,4
 	center_clock = 0;
 	loc_polar = 0;
@@ -161,11 +161,11 @@ void draw() {
 }    
 
 void draw_polar_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy, mon) {
-//	float s = map((sec +(millis()/1000))%60, 0, 60, 0, TWO_PI) - HALF_PI;  
-	float s = map((sec ), 0, 60, 0, TWO_PI) - HALF_PI;  
-	//float m = map(min*60 + sec , 0, 360, 0, TWO_PI) - HALF_PI;  
+//millis();
+	float s_temp =sec+(milliseconds()/1000); 
+	float s = map(s_temp%60, 0, 60, 0, TWO_PI) - HALF_PI;  
+//	float s = map((sec ), 0, 60, 0, TWO_PI) - HALF_PI;  
 	float m = map((min+sec/60)%60, 0, 60, 0, TWO_PI) - HALF_PI;  
-	//float h = map(hr % 12, 0, 4320, 0, TWO_PI) - HALF_PI;  
 	float h = map(((hr % 12) + (min+sec/60)/60)%12, 0, 12, 0, TWO_PI) - HALF_PI;  
 	//need to do something about days in the month here
 	float dow = map(dayofweek, 0, 6, 0, TWO_PI) - HALF_PI;  
@@ -232,6 +232,9 @@ void draw_polar_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy
 		if (hr%12 ==0) { hr_tmp =12; } else { hr_tmp = hr%12; }
 		TimeString = hr_tmp + ":" + TimeString;
 		if  (hr>=12) { TimeString += " PM"; } else { TimeString += " AM"; }
+
+		//debugging code
+		//TimeString += " " + milliseconds() + " ";
 		
 		//print time text
 		text( TimeString, x-25, y-10);
