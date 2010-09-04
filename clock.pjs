@@ -164,9 +164,10 @@ void draw_polar_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy
 //millis();
 	float s_temp =sec+(milliseconds()/1000); 
 	float s = map(s_temp%60, 0, 60, 0, TWO_PI) - HALF_PI;  
-//	float s = map((sec ), 0, 60, 0, TWO_PI) - HALF_PI;  
-	float m = map((min+sec/60)%60, 0, 60, 0, TWO_PI) - HALF_PI;  
-	float h = map(((hr % 12) + (min+sec/60)/60)%12, 0, 12, 0, TWO_PI) - HALF_PI;  
+	float m_temp = min+(s_temp/60);
+	float m = map(m_temp%60, 0, 60, 0, TWO_PI) - HALF_PI;  
+	float h_temp = (hr % 12) + m_temp/60;
+	float h = map(h_temp %12, 0, 12, 0, TWO_PI) - HALF_PI;  
 	//need to do something about days in the month here
 	float dow = map(dayofweek, 0, 6, 0, TWO_PI) - HALF_PI;  
 	float d = map(dy, 0, 31, 0, TWO_PI) - HALF_PI;  
@@ -186,19 +187,19 @@ void draw_polar_clock(x,y,clock_width, clock_height, sec, min, hr, dayofweek, dy
 	}
 	
 	//SECONDS
-	int strokeColor = hsvToRgb(map(sec, 0, 60, 0, 360), 100, 100);
+	int strokeColor = hsvToRgb(map(s_temp, 0, 60, 0, 360), 100, 100);
 	//THIS WORKS TOO but i like HSV better
 	//int strokeColor = color.toRGB(map(sec, 0, 60, 0, 360), 100, 200);
 	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
 	arc(x, y, clock_width*.9, clock_height*.9,  -HALF_PI, s);
 
 	//MINUTES
-	int strokeColor = hsvToRgb(map(min, 0, 60, 0, 360), 100, 100);
+	int strokeColor = hsvToRgb(map(m_temp, 0, 60, 0, 360), 100, 100);
 	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
 	arc(x, y, clock_width*.8, clock_height*.8,  -HALF_PI, m);
 	
 	//HOURS
-	int strokeColor = hsvToRgb(map(hr%12, 0, 12, 0, 360), 100, 100);
+	int strokeColor = hsvToRgb(map(h_temp%12, 0, 12, 0, 360), 100, 100);
 	stroke(strokeColor[0],strokeColor[1],strokeColor[2]);  
 	arc(x, y, clock_width*.7, clock_height*.7,  -HALF_PI, h);
 	 
