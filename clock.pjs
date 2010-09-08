@@ -264,6 +264,41 @@ void draw_fillcircles_clock(x,y,clock_width, clock_height, mil, sec, min, hr) {
 	
 	//SET STROKE WEIGHT
 	if (center_clock==4) {
+		//SETUP HOUR LINES
+		strokeWeight(2);  
+		noFill();
+		stroke(0,0,0,200);
+
+		for (int q = 0; q<=12;q=q+3) {
+			float h_width = map(q, 0, 12, 0, 1)  *(clock_width*.3)+(clock_width*.6);
+			arc(x, y, h_width, h_width, PI+PI/6, TWO_PI-PI/6);
+			stroke(255,255,255,200);
+		}
+
+		//SETUP MINUTE LINES
+		strokeWeight(2);  
+		stroke(0);
+		float h_width = h*(clock_width*.3)+(clock_width*.6);
+		
+		for (int q = 0; q<=60;q=q+15) {
+			float m_width = map(q, 0, 60, 0, 1)*(h_width-(clock_width*.4))*.9 +(clock_width*.4);
+			arc(x, y, m_width, m_width, TWO_PI-PI/6, PI/2);
+			stroke(255,255,255);
+		}
+
+		//SETUP SECOND LINES
+		strokeWeight(2);  
+		stroke(0);
+		float m_width = m*(h_width-(clock_width*.4))*.9 +(clock_width*.4);
+		
+		for (int q = 0; q<=60;q=q+15) {
+			float s_width = map(q, 0, 60, 0, 1)*(m_width-(clock_width*.2))*.9 +(clock_width*.2);
+			arc(x,y,s_width, s_width, PI/2, PI+PI/6);
+			stroke(255);
+
+		}
+
+
 		strokeWeight(3);  
 	} else {
 		strokeWeight(1);  
@@ -273,7 +308,7 @@ void draw_fillcircles_clock(x,y,clock_width, clock_height, mil, sec, min, hr) {
 
 	//HOURS
 	int strokeColor = hsvToRgb(map(h_temp%12, 0, 12, 0, 270), 100, 100);
-	fill(strokeColor[0],strokeColor[1],strokeColor[2],100);  
+	fill(strokeColor[0],strokeColor[1],strokeColor[2],95);  
 	float h_width = h*(clock_width*.3)+(clock_width*.6);
 	ellipse(x,y,h_width, h_width);
 
@@ -317,7 +352,6 @@ void draw_fillcircles_clock(x,y,clock_width, clock_height, mil, sec, min, hr) {
 		int hr_tmp;
 		if (hr%12 ==0) { hr_tmp =12; } else { hr_tmp = hr%12; }
 		TimeString = hr_tmp + ":" + TimeString;
-//		if  (hr>=12) { TimeString += " PM"; } else { TimeString += " AM"; }
 
 		//debugging code
 		//TimeString += " " + milliseconds() + " ";
@@ -386,8 +420,8 @@ void draw_abstract_clock(x,y,clock_width, clock_height, mil, sec, min, hr, dayof
 		x1 = x;
 		y1 = y;
 		beginShape();
-		for (int i=0; i<=s_temp; i++) {
-		
+		for (int j=0; j<=s_temp*100; j++) {
+			i = j/100;
 			//x1 = clock_width/2 * cos((i/60)*(TWO_PI*4));
 			//y1 = clock_height/2 * sin((i/60)*(TWO_PI*4));
 			if (loc_abstract==0) {
@@ -458,10 +492,10 @@ void draw_abstract_clock(x,y,clock_width, clock_height, mil, sec, min, hr, dayof
 		//stroke(color_temp[0],color_temp[1],color_temp[2],220);  
 		
 		if (loc_abstract==0) {
-			curveVertex( (clock_width/(sampleRate-1))*(n/1.15), clock_height/2 - sin((((min+sec/60)%60)*n/60)*TWO_PI)*(((min+sec/60)%60))*1.5 );      
+			curveVertex( (clock_width/(sampleRate-1))*(n/1.15), clock_height/2 - sin((m_temp*n/60)*TWO_PI)*m_temp*1.5 );
 			//curveVertex( (width/(sampleRate-1))*n, height/2 - distXY[n] );
 		} else {
-			curveVertex( (clock_width/(sampleRate-1))*(n/1.15), clock_height/2 - sin((((min+sec/60)%60)*n/60)*TWO_PI)*(((min+sec/60)%60)/5)*1.5 );      
+			curveVertex( (clock_width/(sampleRate-1))*(n/1.15), clock_height/2 - sin((m_temp*n/60)*TWO_PI)*(m_temp/5)*1.5 );  
 		}
 	}  
 	endShape();  
@@ -516,14 +550,12 @@ void draw_abstract_clock(x,y,clock_width, clock_height, mil, sec, min, hr, dayof
 		
 	}
 	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
-
-
 */
 
 	
 	strokeWeight(1);  
 	
-	//SECONDS
+	//SECONDS TREE
 	stroke(50,200,80);
 	// Let's pick an angle 0 to 90 degrees based on the mouse position  
 	float a = s * 90f;  
@@ -537,7 +569,7 @@ void draw_abstract_clock(x,y,clock_width, clock_height, mil, sec, min, hr, dayof
 	// Move to the end of that line  
 	translate(-clock_width*.01123,-clock_height/2*.5);  
 	// Start the recursive branching!  
-	branch((sec/60)*clock_width*.21); 
+	branch((s)*clock_width*.21); 
 	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
 	
 	//MINUTES
@@ -555,7 +587,7 @@ void draw_abstract_clock(x,y,clock_width, clock_height, mil, sec, min, hr, dayof
 	// Move to the end of that line  
 	translate(clock_width*-.081459,-clock_height/2*.7);  
 	// Start the recursive branching!  
-	branch((((min+sec/60)%60)/60)*clock_width*.25); 
+	branch((m)*clock_width*.25); 
 	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
 	
 	//HOURS
@@ -573,8 +605,7 @@ void draw_abstract_clock(x,y,clock_width, clock_height, mil, sec, min, hr, dayof
 	// Move to the end of that line  
 	translate(clock_width*.021459,-clock_height/2*.8);  
 	// Start the recursive branching!  
-	//branch((hr%12/12 + min/720 + sec/4320)*clock_width*.25); 
-	branch(((((hr % 12) + (min+sec/60)/60)%12)/12 )*clock_width*.25); 
+	branch((h)*clock_width*.25); 
 	popMatrix();     // Whenever we get back here, we "pop" in order to restore the previous matrix state  
 	
 }
@@ -648,91 +679,98 @@ void draw_binary_clock(x,y,clock_width, clock_height, sec, min, hr) {
 	}
 }
 
-void mousePressed() {  
-	if (mouseX > bx_analog-bs && mouseX < bx_analog+bs &&   mouseY > by_analog-bs && mouseY < by_analog+bs) {  
-		bover_analog = true; 
-	}
-	if (mouseX > bx_abstract-bs && mouseX < bx_abstract+bs &&   mouseY > by_abstract-bs && mouseY < by_abstract+bs) {  
-		bover_abstract = true; 
-	}
-	if (mouseX > bx_polar-bs && mouseX < bx_polar+bs &&   mouseY > by_polar-bs && mouseY < by_polar+bs) {  
-		bover_polar = true; 
-	}
-	if (mouseX > bx_binary-bs && mouseX < bx_binary+bs &&   mouseY > by_binary-bs && mouseY < by_binary+bs) {  
-		bover_binary = true; 
-	}
-	if (mouseX > bx_difficult-bs && mouseX < bx_difficult+bs &&   mouseY > by_difficult-bs && mouseY < by_difficult+bs) {  
-		bover_difficult = true; 
-	}
-	if(bover_polar) { 
-		if (center_clock ==1) {
-			loc_analog= loc_polar;
-		} else if (center_clock==2) {
-			loc_binary = loc_polar;
-		} else if (center_clock==3) {
-			loc_abstract= loc_polar;
-		} else if (center_clock==4) {
-			loc_difficult = loc_polar;
-		}
-		center_clock = 0;
-		loc_polar = 0;
-		bover_polar=false;
-	}
-	if(bover_analog) { 
-		if (center_clock ==0) {
-			loc_polar = loc_analog;
-		} else if (center_clock==2) {
-			loc_binary = loc_analog;
-		} else if (center_clock==3) {
-			loc_abstract= loc_analog;
-		} else if (center_clock==4) {
-			loc_difficult= loc_analog;
-		}
-		center_clock = 1;
-		loc_analog = 0;
-		bover_analog=false;
-	}
-	if(bover_binary) { 
-		if (center_clock ==0) {
-			loc_polar = loc_binary;
-		} else if (center_clock==1) {
-			loc_analog = loc_binary;
-		} else if (center_clock==3) {
-			loc_abstract= loc_binary;
-		} else if (center_clock==4) {
-			loc_difficult= loc_binary;
-		}
-		center_clock = 2;
-		loc_binary = 0;
-		bover_binary=false;
-	}	
-	if(bover_abstract) { 
-		if (center_clock ==0) {
-			loc_polar = loc_abstract;
-		} else if (center_clock==1) {
-			loc_analog = loc_abstract;
-		} else if (center_clock==2) {
-			loc_binary = loc_abstract;
-		} else if (center_clock==4) {
-			loc_difficult = loc_abstract;
-		}
-		center_clock = 3;
-		loc_abstract = 0;
-		bover_abstract=false;
-	}
-	if(bover_difficult) { 
-		if (center_clock ==0) {
-			loc_polar = loc_difficult;
-		} else if (center_clock==1) {
-			loc_analog = loc_difficult;
-		} else if (center_clock==2) {
-			loc_binary= loc_difficult;
-		} else if (center_clock==3) {
-			loc_abstract= loc_difficult;
-		}
-		center_clock = 4;
-		loc_difficult = 0;
-		bover_difficult=false;
-	}
+void setCenterClock(index) {
+        if(index==0) {
+                if (center_clock ==1) {
+                        loc_analog= loc_polar;
+                } else if (center_clock==2) {
+                        loc_binary = loc_polar;
+                } else if (center_clock==3) {
+                        loc_abstract= loc_polar;
+                } else if (center_clock==4) {
+                        loc_difficult = loc_polar;
+                }
+                center_clock = 0;
+                loc_polar = 0;
+                bover_polar=false;
+        }
+        if(index==1) {
+                if (center_clock ==0) {
+                        loc_polar = loc_analog;
+                } else if (center_clock==2) {
+                        loc_binary = loc_analog;
+                } else if (center_clock==3) {
+                        loc_abstract= loc_analog;
+                } else if (center_clock==4) {
+                        loc_difficult= loc_analog;
+                }
+                center_clock = 1;
+                loc_analog = 0;
+                bover_analog=false;
+        }
+        if(index==2) {
+                if (center_clock ==0) {
+                        loc_polar = loc_binary;
+                } else if (center_clock==1) {
+                        loc_analog = loc_binary;
+                } else if (center_clock==3) {
+                        loc_abstract= loc_binary;
+                } else if (center_clock==4) {
+                        loc_difficult= loc_binary;
+                }
+                center_clock = 2;
+                loc_binary = 0;
+                bover_binary=false;
+        }
+        if(index==3) {
+                if (center_clock ==0) {
+                        loc_polar = loc_abstract;
+                } else if (center_clock==1) {
+                        loc_analog = loc_abstract;
+                } else if (center_clock==2) {
+                        loc_binary = loc_abstract;
+                } else if (center_clock==4) {
+                        loc_difficult = loc_abstract;
+                }
+                center_clock = 3;
+                loc_abstract = 0;
+                bover_abstract=false;
+        }
+        if(index==4) {
+                if (center_clock ==0) {
+                        loc_polar = loc_difficult;
+                } else if (center_clock==1) {
+                        loc_analog = loc_difficult;
+                } else if (center_clock==2) {
+                        loc_binary= loc_difficult;
+                } else if (center_clock==3) {
+                        loc_abstract= loc_difficult;
+                }
+                center_clock = 4;
+                loc_difficult = 0;
+                bover_difficult=false;
+        }
+}
+void mousePressed() {
+        if (mouseX > bx_analog-bs && mouseX < bx_analog+bs &&   mouseY > by_analog-bs && mouseY < by_analog+bs) {
+                setCenterClock(1);
+                //bover_analog = true;
+        }
+        if (mouseX > bx_abstract-bs && mouseX < bx_abstract+bs &&   mouseY > by_abstract-bs && mouseY < by_abstract+bs) {
+                setCenterClock(3);
+                //bover_abstract = true;
+        }
+        if (mouseX > bx_polar-bs && mouseX < bx_polar+bs &&   mouseY > by_polar-bs && mouseY < by_polar+bs) {
+                setCenterClock(0);
+                //bover_polar = true;
+        }
+        if (mouseX > bx_binary-bs && mouseX < bx_binary+bs &&   mouseY > by_binary-bs && mouseY < by_binary+bs) {
+                setCenterClock(2);
+                //bover_binary = true;
+        }
+        if (mouseX > bx_difficult-bs && mouseX < bx_difficult+bs &&   mouseY > by_difficult-bs && mouseY < by_difficult+bs) {
+                //bover_difficult = true;
+                setCenterClock(4);
+        }
 }
 
